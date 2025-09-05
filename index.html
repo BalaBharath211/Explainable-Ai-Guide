@@ -8,12 +8,22 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: "Warm Neutrals" with Teal accents -->
+    <!-- Application Structure Plan: The application is designed as a progressive, single-page learning journey. It starts with beginner concepts and builds complexity, guiding the user through distinct, scrollable sections. This vertical, narrative structure is more intuitive for a topic that requires foundational knowledge before tackling advanced concepts. A sticky navigation bar allows users to jump between logical learning modules (The Problem, The Tools, The Comparison, The Future, The Practice). This structure was chosen over a dashboard because the goal is education and storytelling, not data exploration. Key interactions include dynamic charts that visually demonstrate how LIME and SHAP work, reinforcing the theoretical concepts with immediate visual feedback. -->
+    <!-- Visualization & Content Choices: 
+        1. 'Black Box' Diagram: Info: The opaque nature of complex AI models. Goal: Inform. Viz: Simple HTML/CSS diagram. Interaction: None. Justification: A simple visual metaphor is most effective for this introductory concept.
+        2. LIME Simulation: Info: LIME's local approximation method. Goal: Explain. Viz: Chart.js scatter plot with a non-linear boundary. Interaction: User clicks on a data point to see a simple linear model (a tangent line) drawn, approximating the local decision. Justification: This interaction directly mimics LIME's core function—making a complex model understandable at a specific point.
+        3. SHAP Force Plot: Info: SHAP's feature contribution model. Goal: Explain & Compare. Viz: Chart.js horizontal bar chart. Interaction: User selects a prediction scenario from a dropdown, and the chart updates to show which features contributed positively or negatively. Justification: This visualizes the "push and pull" of features on the final prediction, which is the core insight SHAP provides.
+        4. Comparison Table: Info: LIME vs. SHAP trade-offs. Goal: Compare. Viz: Styled HTML table. Interaction: Hover effects for readability. Justification: A table is the clearest way to present a direct, feature-by-feature comparison.
+        5. Accordions: Info: Advanced topics and project ideas. Goal: Organize. Viz: HTML/JS accordions. Interaction: Click to expand. Justification: This keeps the advanced/practical sections clean and prevents overwhelming the user, allowing them to explore what interests them.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body {
             font-family: 'Inter', sans-serif;
             background-color: #fdfcfb;
-            color: #374151; 
+            color: #1f2937;
         }
         .chart-container {
             position: relative;
@@ -21,7 +31,8 @@
             max-width: 700px;
             margin-left: auto;
             margin-right: auto;
-            height: 300px; /* Adjusted for better mobile fit */
+            height: 350px;
+            max-height: 450px;
         }
         @media (min-width: 768px) {
             .chart-container {
@@ -29,209 +40,309 @@
             }
         }
         .nav-link {
-            transition: all 0.3s ease;
+            transition: color 0.3s ease, border-color 0.3s ease;
         }
         .nav-link.active {
             color: #0d9488;
-            background-color: #ccfbf1;
+            border-bottom-color: #0d9488;
         }
         .prose h3 {
-            font-weight: 600; font-size: 1.25rem; margin-top: 1.5em; margin-bottom: 0.75em;
+            font-weight: 600;
+            font-size: 1.25rem;
+            margin-top: 1.5em;
+            margin-bottom: 0.75em;
         }
         .prose p, .prose li {
-            font-size: 1.1rem; line-height: 1.7;
+            font-size: 1.05rem;
+            line-height: 1.6;
         }
         .accordion-content {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.5s cubic-bezier(0.2, 1, 0.2, 1);
-        }
-        .accordion-icon {
-            transition: transform 0.3s ease-in-out;
+            transition: max-height 0.4s ease-in-out;
         }
     </style>
 </head>
 <body class="antialiased">
 
-    <header id="header" class="bg-white/90 backdrop-blur-lg sticky top-0 z-50 border-b-2 border-gray-100 shadow-sm">
+    <header id="header" class="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-200">
         <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <div class="flex items-center">
                     <span class="font-bold text-xl text-teal-700">XAI Explained</span>
                 </div>
                 <div class="hidden md:block">
-                    <div class="ml-10 flex items-baseline space-x-2">
-                        <a href="#beginner" class="nav-link text-gray-600 hover:text-teal-600 hover:bg-teal-50 px-3 py-2 rounded-md text-sm font-medium">Beginner</a>
-                        <a href="#intermediate" class="nav-link text-gray-600 hover:text-teal-600 hover:bg-teal-50 px-3 py-2 rounded-md text-sm font-medium">Intermediate</a>
-                        <a href="#comparison" class="nav-link text-gray-600 hover:text-teal-600 hover:bg-teal-50 px-3 py-2 rounded-md text-sm font-medium">Comparison</a>
-                        <a href="#advanced" class="nav-link text-gray-600 hover:text-teal-600 hover:bg-teal-50 px-3 py-2 rounded-md text-sm font-medium">Advanced</a>
-                        <a href="#practice" class="nav-link text-gray-600 hover:text-teal-600 hover:bg-teal-50 px-3 py-2 rounded-md text-sm font-medium">Practice</a>
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#beginner" class="nav-link text-gray-600 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium border-b-2 border-transparent">Beginner</a>
+                        <a href="#intermediate" class="nav-link text-gray-600 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium border-b-2 border-transparent">Intermediate</a>
+                        <a href="#comparison" class="nav-link text-gray-600 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium border-b-2 border-transparent">Comparison</a>
+                        <a href="#advanced" class="nav-link text-gray-600 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium border-b-2 border-transparent">Advanced</a>
+                        <a href="#practice" class="nav-link text-gray-600 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium border-b-2 border-transparent">Practice</a>
                     </div>
-                </div>
-                <div class="md:hidden">
-                    <button id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-teal-600 hover:bg-teal-50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-teal-500">
-                        <span class="sr-only">Open main menu</span>
-                        <svg id="hamburger-icon" class="h-6 w-6 block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
-                        </svg>
-                        <svg id="close-icon" class="h-6 w-6 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
                 </div>
             </div>
         </nav>
-        <div id="mobile-menu" class="md:hidden hidden">
-            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                <a href="#beginner" class="mobile-nav-link text-gray-600 hover:text-teal-600 hover:bg-teal-50 block px-3 py-2 rounded-md text-base font-medium">Beginner</a>
-                <a href="#intermediate" class="mobile-nav-link text-gray-600 hover:text-teal-600 hover:bg-teal-50 block px-3 py-2 rounded-md text-base font-medium">Intermediate</a>
-                <a href="#comparison" class="mobile-nav-link text-gray-600 hover:text-teal-600 hover:bg-teal-50 block px-3 py-2 rounded-md text-base font-medium">Comparison</a>
-                <a href="#advanced" class="mobile-nav-link text-gray-600 hover:text-teal-600 hover:bg-teal-50 block px-3 py-2 rounded-md text-base font-medium">Advanced</a>
-                <a href="#practice" class="mobile-nav-link text-gray-600 hover:text-teal-600 hover:bg-teal-50 block px-3 py-2 rounded-md text-base font-medium">Practice</a>
-            </div>
-        </div>
     </header>
 
     <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 prose lg:prose-xl">
 
-        <section id="intro" class="text-center mb-20">
-            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-gray-900">
-                A Researcher's Guide to <span class="bg-clip-text text-transparent bg-gradient-to-r from-teal-500 to-cyan-600">Explainable AI</span>
+        <section id="intro" class="text-center mb-16">
+            <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-gray-900">
+                A Researcher's Guide to <span class="text-teal-600">Explainable AI</span>
             </h1>
-            <p class="mt-6 text-lg text-gray-600 max-w-3xl mx-auto">From the 'black box' problem to the frontiers of research. An interactive journey into the heart of trustworthy AI.</p>
+            <p class="mt-4 text-lg text-gray-600">From the 'black box' problem to the frontiers of research. An interactive journey into the heart of trustworthy AI.</p>
         </section>
 
-        <div class="space-y-16">
-            <section id="beginner" class="scroll-mt-20 p-6 sm:p-8 rounded-2xl bg-white">
-                <h2 class="text-3xl font-bold tracking-tight text-gray-900 border-b-2 border-teal-500 pb-2">
-                    Level 1: The 'Black Box' Conundrum
-                </h2>
-                <p class="mt-4">This section introduces the core problem XAI aims to solve, exploring why powerful AI models are often opaque and why this is a barrier in critical applications.</p>
-                <h3>What is the 'Black Box' Problem?</h3>
-                <p>In AI, a "black box" is a model whose internal workings are hidden. We see inputs and outputs, but the process between is a complex web of math, especially in deep learning.</p>
-                
-                <div class="my-8 bg-gray-100 p-6 sm:p-8 rounded-lg flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-8 text-center">
-                    <div class="bg-white p-4 rounded-lg shadow-md"><span class="text-lg font-semibold">Patient Data</span></div>
-                    <div class="text-4xl text-teal-600 font-mono transform rotate-90 md:rotate-0">&rarr;</div>
-                    <div class="bg-gray-800 text-white p-8 rounded-lg shadow-xl relative">
-                        <span class="text-5xl font-bold">?</span><span class="absolute -top-3 -left-3 bg-teal-500 text-white text-xs font-bold px-2 py-1 rounded-full">AI Model</span>
-                    </div>
-                    <div class="text-4xl text-teal-600 font-mono transform rotate-90 md:rotate-0">&rarr;</div>
-                    <div class="bg-white p-4 rounded-lg shadow-md"><span class="text-lg font-semibold">"High Risk"</span></div>
-                </div>
+        <section id="beginner" class="mb-16 scroll-mt-20">
+            <h2 class="text-3xl font-bold tracking-tight text-gray-900 border-b-2 border-teal-500 pb-2">
+                Level 1: The 'Black Box' Conundrum
+            </h2>
+            <p class="mt-4">This first section introduces the core problem that XAI aims to solve. We explore why the most powerful AI models are often the most opaque, and why this lack of transparency is a major barrier to their adoption in critical, real-world applications where the 'why' is just as important as the 'what'.</p>
 
-                <h3>Why is Explainability so Important?</h3>
-                <p>Trust is the cornerstone of adoption. In high-stakes domains, a simple prediction isn't enough; we need to know it was made for the right reasons.</p>
-                <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6 not-prose">
-                    <div class="bg-teal-50/50 p-6 rounded-lg border border-teal-200">
-                        <h4 class="font-bold text-lg text-teal-800">Healthcare</h4>
-                        <p class="mt-2 text-gray-700">A doctor needs to know *why* an AI flags a patient as high-risk for diagnosis and to build trust with patients.</p>
-                    </div>
-                    <div class="bg-amber-50/50 p-6 rounded-lg border border-amber-200">
-                        <h4 class="font-bold text-lg text-amber-800">Finance</h4>
-                        <p class="mt-2 text-gray-700">When an AI denies a loan, regulations require a reason. Explanations ensure fairness and provide transparency.</p>
-                    </div>
+            <h3>What is the 'Black Box' Problem?</h3>
+            <p>
+                In AI, a "black box" refers to a model whose internal workings are not visible or understandable to humans. We can see the inputs (data we feed in) and the outputs (the model's prediction), but the process in between is a complex web of mathematical operations, often involving millions or billions of parameters. This is especially true for deep learning models like neural networks.
+            </p>
+            <p>
+                <strong>Analogy: The Magic Coffee Machine.</strong> Imagine a coffee machine. You put in beans and water (inputs) and get a perfect cup of coffee (output). But you have no idea *how* it does it. You can't see the grinder, the heater, or the filter. If it suddenly makes a bad cup, you have no way to diagnose or fix the problem. This is the essence of the black box problem in AI.
+            </p>
+            <div class="my-8 bg-gray-100 p-8 rounded-lg flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-8 text-center">
+                <div class="bg-white p-4 rounded-lg shadow-md">
+                    <span class="text-lg font-semibold">Patient Data</span>
                 </div>
-            </section>
+                <div class="text-4xl text-teal-600 font-mono">&rarr;</div>
+                <div class="bg-gray-800 text-white p-8 rounded-lg shadow-xl relative">
+                    <span class="text-5xl font-bold">?</span>
+                    <span class="absolute -top-3 -left-3 bg-teal-500 text-white text-xs font-bold px-2 py-1 rounded-full">AI Model</span>
+                </div>
+                <div class="text-4xl text-teal-600 font-mono">&rarr;</div>
+                <div class="bg-white p-4 rounded-lg shadow-md">
+                    <span class="text-lg font-semibold">"High Risk"</span>
+                </div>
+            </div>
+
+            <h3>Why is Explainability so Important?</h3>
+            <p>
+                Trust is the cornerstone of adoption for any technology. In high-stakes domains, a simple prediction is not enough. We need to trust that the prediction was made for the right reasons.
+            </p>
+            <ul>
+                <li><strong>Healthcare:</strong> If an AI model predicts a patient has a high risk of cancer, a doctor needs to know *why*. Is it based on a specific anomaly in a scan, family history, or a spurious correlation in the data? The explanation is critical for diagnosis and building trust with both doctors and patients.</li>
+                <li><strong>Finance:</strong> When a bank's AI denies a loan application, regulations (like the Equal Credit Opportunity Act) may require the bank to provide a reason. An explanation helps ensure the model isn't discriminating based on protected characteristics like race or gender, and provides transparency to the customer.</li>
+            </ul>
+        </section>
+
+        <section id="intermediate" class="mb-16 scroll-mt-20">
+            <h2 class="text-3xl font-bold tracking-tight text-gray-900 border-b-2 border-teal-500 pb-2">
+                Level 2: Peeking Inside with LIME & SHAP
+            </h2>
+            <p class="mt-4">Now that we understand the problem, let's explore two of the most popular and powerful tools for solving it. LIME and SHAP are "model-agnostic" techniques, meaning they can be applied to any black box model. This section provides both a conceptual and an interactive understanding of how they work their magic.</p>
+
+            <h3>LIME: Local Explanations</h3>
+            <p>
+                <strong>LIME</strong> stands for <strong>L</strong>ocal <strong>I</strong>nterpretable <strong>M</strong>odel-agnostic <strong>E</strong>xplanations. The key word here is "Local". LIME doesn't try to explain the entire complex model at once. Instead, it focuses on explaining a *single prediction*.
+            </p>
+            <p>
+                <strong>Analogy: The Bumpy Landscape.</strong> Imagine the AI model's decision-making process is a complex, bumpy landscape. Instead of trying to map the entire landscape, LIME picks one spot (a specific prediction) and approximates the ground around it with a simple, flat plane. This "plane" is an interpretable model (like a linear regression) that is only accurate in that small, local area, but is very easy to understand.
+            </p>
+            <div class="my-8 bg-gray-50 p-6 rounded-lg border">
+                 <h4 class="text-xl font-semibold text-center mb-4">Interactive LIME Simulation</h4>
+                 <p class="text-center text-sm mb-4">The blue curve represents a complex model's decision boundary. Click on a data point (a patient) to see how LIME creates a simple, local explanation (the red line) for that specific prediction.</p>
+                <div class="chart-container">
+                    <canvas id="limeChart"></canvas>
+                </div>
+                <p id="limeExplanation" class="text-center mt-4 font-medium text-teal-700 h-6"></p>
+            </div>
             
-            <section id="intermediate" class="scroll-mt-20 p-6 sm:p-8 rounded-2xl bg-gray-50/80">
-                <h2 class="text-3xl font-bold tracking-tight text-gray-900 border-b-2 border-teal-500 pb-2">
-                    Level 2: Peeking Inside with LIME & SHAP
-                </h2>
-                 <p class="mt-4">Let's explore two popular "model-agnostic" tools for solving the black box problem. This section provides a conceptual and interactive understanding of how LIME and SHAP work.</p>
-                <div class="my-8 bg-white p-6 rounded-lg border shadow-sm">
-                    <h4 class="text-xl font-semibold text-center mb-4">Interactive LIME Simulation</h4>
-                    <p class="text-center text-sm mb-4">The blue curve is the model's complex decision boundary. Click a data point to see LIME's simple, local explanation (the orange line).</p>
-                    <div class="chart-container"><canvas id="limeChart"></canvas></div>
-                    <p id="limeExplanation" class="text-center mt-4 font-medium text-teal-700 h-6"></p>
+            <h3>SHAP: Fairly Distributing the Prediction</h3>
+            <p>
+                <strong>SHAP</strong> stands for <strong>SH</strong>apley <strong>A</strong>dditive ex<strong>P</strong>lanations. It's rooted in cooperative game theory and the concept of Shapley values, a method for fairly distributing a "payout" among players in a game.
+            </p>
+            <p>
+                <strong>Analogy: The Team Project.</strong> Imagine a team of students (features) completes a project and gets a score of 95% (the prediction). How do you fairly credit each student for their contribution to that final score? SHAP calculates this by considering every possible subgroup of students and seeing how the score changes when a particular student joins. By averaging these marginal contributions, it assigns a precise value (a SHAP value) to each student's impact. Features that pushed the score up get positive values; those that pulled it down get negative values.
+            </p>
+            <div class="my-8 bg-gray-50 p-6 rounded-lg border">
+                <h4 class="text-xl font-semibold text-center mb-4">Interactive SHAP Explanation</h4>
+                <div class="flex flex-col items-center">
+                    <label for="shapScenario" class="text-sm font-medium mb-2">Select a loan application scenario:</label>
+                    <select id="shapScenario" class="p-2 border rounded-md shadow-sm">
+                        <option value="approved">Application Approved (Prediction: 92%)</option>
+                        <option value="denied">Application Denied (Prediction: 28%)</option>
+                    </select>
                 </div>
-                 <div class="my-8 bg-white p-6 rounded-lg border shadow-sm">
-                    <h4 class="text-xl font-semibold text-center mb-4">Interactive SHAP Explanation</h4>
-                    <div class="flex flex-col items-center">
-                        <label for="shapScenario" class="text-sm font-medium mb-2">Select a loan application scenario:</label>
-                        <select id="shapScenario" class="p-2 border rounded-md shadow-sm bg-white">
-                            <option value="approved">Application Approved (92%)</option>
-                            <option value="denied">Application Denied (28%)</option>
-                        </select>
+                <p class="text-center text-sm my-4">This chart shows the SHAP values explaining the prediction. Blue bars represent features pushing the prediction higher (towards "Approved"), while red bars push it lower (towards "Denied").</p>
+                <div class="chart-container">
+                    <canvas id="shapChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="comparison" class="mb-16 scroll-mt-20">
+            <h2 class="text-3xl font-bold tracking-tight text-gray-900 border-b-2 border-teal-500 pb-2">
+                Level 3: LIME vs. SHAP - A Head-to-Head Comparison
+            </h2>
+            <p class="mt-4">Both LIME and SHAP provide powerful ways to explain black box models, but they have different theoretical foundations, strengths, and weaknesses. Choosing the right tool depends on your specific needs for speed, accuracy, and theoretical guarantees. This section offers a direct comparison to help you decide.</p>
+            
+            <div class="overflow-x-auto my-8">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="p-4 font-semibold border-b-2 border-gray-300">Feature</th>
+                            <th class="p-4 font-semibold border-b-2 border-gray-300">LIME</th>
+                            <th class="p-4 font-semibold border-b-2 border-gray-300">SHAP</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="hover:bg-teal-50">
+                            <td class="p-4 border-b border-gray-200 font-medium">Theoretical Foundation</td>
+                            <td class="p-4 border-b border-gray-200">Local surrogate models</td>
+                            <td class="p-4 border-b border-gray-200">Game Theory (Shapley Values)</td>
+                        </tr>
+                        <tr class="hover:bg-teal-50">
+                            <td class="p-4 border-b border-gray-200 font-medium">Key Advantage</td>
+                            <td class="p-4 border-b border-gray-200">Very fast and intuitive</td>
+                            <td class="p-4 border-b border-gray-200">Consistency and accuracy; strong theoretical guarantees</td>
+                        </tr>
+                        <tr class="hover:bg-teal-50">
+                            <td class="p-4 border-b border-gray-200 font-medium">Key Limitation</td>
+                            <td class="p-4 border-b border-gray-200">Instability of explanations (small data changes can alter explanation)</td>
+                            <td class="p-4 border-b border-gray-200">Can be computationally expensive, especially for many features</td>
+                        </tr>
+                        <tr class="hover:bg-teal-50">
+                            <td class="p-4 border-b border-gray-200 font-medium">Explanation Type</td>
+                            <td class="p-4 border-b border-gray-200">Primarily local (single prediction)</td>
+                            <td class="p-4 border-b border-gray-200">Both local (force plots) and global (summary plots)</td>
+                        </tr>
+                        <tr class="hover:bg-teal-50">
+                            <td class="p-4 border-b border-gray-200 font-medium">Best For...</td>
+                            <td class="p-4 border-b border-gray-200">Quick, understandable explanations for non-technical stakeholders</td>
+                            <td class="p-4 border-b border-gray-200">Situations requiring robust, fair, and consistent explanations, like regulatory compliance</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+             <p>As the original LIME paper by Ribeiro, Singh, & Guestrin (2016) states, it aims to provide a faithful explanation of the model's behavior locally. In contrast, the SHAP paper by Lundberg & Lee (2017) introduces a unified framework that guarantees properties like consistency, which LIME does not.</p>
+        </section>
+        
+        <section id="advanced" class="mb-16 scroll-mt-20">
+            <h2 class="text-3xl font-bold tracking-tight text-gray-900 border-b-2 border-teal-500 pb-2">
+                Level 4: The Research Frontier in XAI
+            </h2>
+            <p class="mt-4">While LIME and SHAP are foundational, the field of XAI is rapidly evolving. Researchers are developing new methods that address the limitations of current techniques and offer different kinds of explanations beyond simple feature importance. This section highlights some of the most exciting directions in modern XAI research.</p>
+
+            <div class="space-y-4">
+                <div class="accordion-item border rounded-lg">
+                    <button class="accordion-header w-full text-left p-4 font-semibold text-lg flex justify-between items-center hover:bg-gray-50">
+                        Counterfactual Explanations
+                        <span>&plus;</span>
+                    </button>
+                    <div class="accordion-content px-4 pb-4">
+                        <p>Instead of explaining why a prediction was made, counterfactuals explain what would need to change to get a different outcome. For a denied loan, a counterfactual explanation would be: "Your loan would have been approved if your annual income was $5,000 higher." This is highly actionable for the end-user.
+                        <br><em>Key Paper: Wachter, S., Mittelstadt, B., & Russell, C. (2017). Counterfactual explanations without opening the black box: Automated decisions and the GDPR.</em></p>
                     </div>
-                    <p class="text-center text-sm my-4">Blue bars push the prediction higher (Approve), while red bars push it lower (Deny).</p>
-                    <div class="chart-container"><canvas id="shapChart"></canvas></div>
                 </div>
-            </section>
-        </div>
+                 <div class="accordion-item border rounded-lg">
+                    <button class="accordion-header w-full text-left p-4 font-semibold text-lg flex justify-between items-center hover:bg-gray-50">
+                        Concept-based Explanations
+                        <span>&plus;</span>
+                    </button>
+                    <div class="accordion-content px-4 pb-4">
+                        <p>Humans reason using high-level concepts, not individual pixels or data points. Concept-based methods aim to explain a model's decision in terms of these concepts. For an image classifier identifying a zebra, instead of saying "these pixels were important," it might say "it focused on the concept of 'stripes'."
+                        <br><em>Key Paper: Kim, B., Wattenberg, M., Gilmer, J., et al. (2018). Interpretability beyond feature attribution: Quantitative testing with concept activation vectors (TCAV).</em></p>
+                    </div>
+                </div>
+                 <div class="accordion-item border rounded-lg">
+                    <button class="accordion-header w-full text-left p-4 font-semibold text-lg flex justify-between items-center hover:bg-gray-50">
+                        Causal Explanations
+                        <span>&plus;</span>
+                    </button>
+                    <div class="accordion-content px-4 pb-4">
+                        <p>Most XAI methods show correlation, not causation. A famous example is an AI that linked coughing to lung cancer. While correlated, coughing doesn't cause cancer. Causal XAI attempts to uncover the true causal relationships in the data, providing a much deeper and more robust form of explanation. This is a very active but challenging area of research.
+                        <br><em>Key Paper: von Kügelgen, J., Gresele, L., & Schölkopf, B. (2021). Simpson's paradox in causal reinforcement learning.</em></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="practice" class="scroll-mt-20">
+            <h2 class="text-3xl font-bold tracking-tight text-gray-900 border-b-2 border-teal-500 pb-2">
+                Level 5: From Theory to Practice
+            </h2>
+            <p class="mt-4">The best way to solidify your understanding is by applying these concepts. Here are a few project ideas, ranging from simple to more complex, that you can implement using popular Python libraries like <code>lime</code> and <code>shap</code>. These will give you hands-on experience in generating and interpreting AI explanations.</p>
+            
+            <div class="space-y-4">
+                 <div class="accordion-item border rounded-lg">
+                    <button class="accordion-header w-full text-left p-4 font-semibold text-lg flex justify-between items-center hover:bg-gray-50">
+                        Project 1 (LIME): Titanic Survival Explanations
+                        <span>&plus;</span>
+                    </button>
+                    <div class="accordion-content px-4 pb-4">
+                        <p><strong>Goal:</strong> Explain individual survival predictions for passengers on the Titanic.
+                        <br><strong>Dataset:</strong> The classic Kaggle Titanic dataset.
+                        <br><strong>Task:</strong> Train a classifier (like a Random Forest or Gradient Boosting model) to predict survival. Then, use the LIME library to pick a few specific passengers (e.g., a wealthy first-class woman, a poor third-class man) and generate local explanations to see which features (age, class, sex) were most influential in their predicted outcome.</p>
+                    </div>
+                </div>
+                 <div class="accordion-item border rounded-lg">
+                    <button class="accordion-header w-full text-left p-4 font-semibold text-lg flex justify-between items-center hover:bg-gray-50">
+                        Project 2 (SHAP): House Price Feature Importance
+                        <span>&plus;</span>
+                    </button>
+                    <div class="accordion-content px-4 pb-4">
+                        <p><strong>Goal:</strong> Understand which features globally impact house price predictions.
+                        <br><strong>Dataset:</strong> Boston Housing dataset (available in scikit-learn).
+                        <br><strong>Task:</strong> Train a regression model (like XGBoost) to predict house prices. Use the SHAP library to create a global summary plot. This plot will show you which features (e.g., number of rooms, crime rate) have the most predictive power overall and how their values relate to the final price prediction.</p>
+                    </div>
+                </div>
+                 <div class="accordion-item border rounded-lg">
+                    <button class="accordion-header w-full text-left p-4 font-semibold text-lg flex justify-between items-center hover:bg-gray-50">
+                        Project 3 (Advanced): Comparing Explanations for NLP
+                        <span>&plus;</span>
+                    </button>
+                    <div class="accordion-content px-4 pb-4">
+                        <p><strong>Goal:</strong> Explain sentiment analysis predictions for text data.
+                        <br><strong>Dataset:</strong> IMDb movie reviews dataset.
+                        <br><strong>Task:</strong> Train a text classification model (e.g., using an LSTM or a simple TF-IDF with a logistic regression). Apply both LIME and SHAP to explain why a particular review was classified as positive or negative. You'll see how they highlight different words as being important and can compare the stability and coherence of their explanations.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
 
     </main>
     
-    <footer class="bg-gray-100 mt-20">
-        <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center text-gray-500">
+    <footer class="bg-gray-100 mt-16">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-gray-500">
             <p>&copy; 2025 XAI Research Initiative. An interactive guide to understanding modern AI.</p>
         </div>
     </footer>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // --- MOBILE MENU SCRIPT ---
-    const menuButton = document.getElementById('mobile-menu-button');
-    const mobileMenu = document.getElementById('mobile-menu');
-    const hamburgerIcon = document.getElementById('hamburger-icon');
-    const closeIcon = document.getElementById('close-icon');
-    const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
 
-    menuButton.addEventListener('click', () => {
-        mobileMenu.classList.toggle('hidden');
-        hamburgerIcon.classList.toggle('hidden');
-        closeIcon.classList.toggle('hidden');
-    });
-    
-    // Close mobile menu when a link is clicked
-    mobileNavLinks.forEach(link => {
-        link.addEventListener('click', () => {
-            mobileMenu.classList.add('hidden');
-            hamburgerIcon.classList.remove('hidden');
-            closeIcon.classList.add('hidden');
-        });
-    });
-
-    // --- SCROLLSPY SCRIPT ---
     const sections = document.querySelectorAll('section[id]');
     const navLinks = document.querySelectorAll('.nav-link');
-    const observerOptions = { root: null, rootMargin: '0px', threshold: 0.4 };
+
+    const observerOptions = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.3
+    };
+
     const observer = new IntersectionObserver((entries) => {
-        let activeId = null;
         entries.forEach(entry => {
-            if (entry.isIntersecting && entry.intersectionRatio >= 0.4) {
-                 activeId = entry.target.getAttribute('id');
+            if (entry.isIntersecting) {
+                const id = entry.target.getAttribute('id');
+                navLinks.forEach(link => {
+                    link.classList.toggle('active', link.getAttribute('href') === `#${id}`);
+                });
             }
-        });
-        navLinks.forEach(link => {
-            const linkHref = link.getAttribute('href').substring(1);
-            link.classList.toggle('active', linkHref === activeId);
         });
     }, observerOptions);
-    sections.forEach(section => { observer.observe(section); });
 
-    // --- ACCORDION SCRIPT ---
-    const accordions = document.querySelectorAll('.accordion-item');
-    accordions.forEach(item => {
-        const header = item.querySelector('.accordion-header');
-        const content = item.querySelector('.accordion-content');
-        const icon = header.querySelector('.accordion-icon');
-        header.addEventListener('click', () => {
-            const isExpanded = content.style.maxHeight && content.style.maxHeight !== '0px';
-            accordions.forEach(i => {
-                i.querySelector('.accordion-content').style.maxHeight = '0px';
-                i.querySelector('.accordion-icon').style.transform = 'rotate(0deg)';
-            });
-            if (!isExpanded) {
-                content.style.maxHeight = content.scrollHeight + 'px';
-                icon.style.transform = 'rotate(45deg)';
-            }
-        });
+    sections.forEach(section => {
+        observer.observe(section);
     });
 
-    // --- CHART RENDERING SCRIPTS ---
-    // NOTE: Chart.js logic is unchanged and placed here for completeness.
     let limeChartInstance, shapChartInstance;
+
     function renderLIMEChart() {
         const ctx = document.getElementById('limeChart').getContext('2d');
         const dataPoints = [];
@@ -241,26 +352,53 @@ document.addEventListener('DOMContentLoaded', () => {
             const boundary = Math.sin(x) * 2 + 5;
             dataPoints.push({ x, y, label: y > boundary ? 1 : 0 });
         }
+
         const decisionBoundary = Array.from({ length: 100 }, (_, i) => {
             const x = i * 0.1;
             return { x, y: Math.sin(x) * 2 + 5 };
         });
+
         limeChartInstance = new Chart(ctx, {
             type: 'scatter',
             data: {
                 datasets: [{
-                    label: 'Patient (High Risk)', data: dataPoints.filter(p => p.label === 1), backgroundColor: 'rgba(239, 68, 68, 0.7)', pointRadius: 6,
+                    label: 'Patient (High Risk)',
+                    data: dataPoints.filter(p => p.label === 1),
+                    backgroundColor: 'rgba(239, 68, 68, 0.7)',
+                    pointRadius: 6,
                 }, {
-                    label: 'Patient (Low Risk)', data: dataPoints.filter(p => p.label === 0), backgroundColor: 'rgba(34, 197, 94, 0.7)', pointRadius: 6,
+                    label: 'Patient (Low Risk)',
+                    data: dataPoints.filter(p => p.label === 0),
+                    backgroundColor: 'rgba(34, 197, 94, 0.7)',
+                    pointRadius: 6,
                 }, {
-                    label: 'True Decision Boundary', data: decisionBoundary, borderColor: 'rgba(59, 130, 246, 1)', borderWidth: 3, type: 'line', showLine: true, pointRadius: 0, fill: false,
+                    label: 'True Decision Boundary',
+                    data: decisionBoundary,
+                    borderColor: 'rgba(59, 130, 246, 1)',
+                    borderWidth: 3,
+                    type: 'line',
+                    showLine: true,
+                    pointRadius: 0,
+                    fill: false,
                 }, {
-                    label: 'LIME Explanation', data: [], borderColor: 'rgba(217, 119, 6, 1)', borderWidth: 2, borderDash: [5, 5], type: 'line', showLine: true, pointRadius: 0, fill: false,
+                    label: 'LIME Explanation',
+                    data: [],
+                    borderColor: 'rgba(217, 119, 6, 1)',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    type: 'line',
+                    showLine: true,
+                    pointRadius: 0,
+                    fill: false,
                 }]
             },
             options: {
-                responsive: true, maintainAspectRatio: false,
-                scales: { x: { title: { display: true, text: 'Feature 1 (e.g., Age)' } }, y: { title: { display: true, text: 'Feature 2 (e.g., Blood Pressure)' } } },
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { title: { display: true, text: 'Feature 1 (e.g., Age)' } },
+                    y: { title: { display: true, text: 'Feature 2 (e.g., Blood Pressure)' } }
+                },
                 onClick: (event) => {
                     const activePoints = limeChartInstance.getElementsAtEventForMode(event, 'nearest', { intersect: true }, true);
                     if (activePoints.length > 0) {
@@ -273,24 +411,44 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
     function updateLIMEExplanation(x_center) {
         const slope = Math.cos(x_center) * 2;
         const y_center = Math.sin(x_center) * 2 + 5;
-        const x1 = x_center - 1.5; const y1 = y_center - 1.5 * slope;
-        const x2 = x_center + 1.5; const y2 = y_center + 1.5 * slope;
+
+        const x1 = x_center - 1.5;
+        const y1 = y_center - 1.5 * slope;
+        const x2 = x_center + 1.5;
+        const y2 = y_center + 1.5 * slope;
+
         limeChartInstance.data.datasets[3].data = [{x: x1, y: y1}, {x: x2, y: y2}];
         limeChartInstance.update();
         document.getElementById('limeExplanation').textContent = `Locally, the model behaves like this simple line.`;
     }
+    
     function renderSHAPChart(scenario = 'approved') {
         const ctx = document.getElementById('shapChart').getContext('2d');
+        
         const scenarios = {
-            approved: { baseValue: 0.5, prediction: 0.92, labels: ['High Income', 'Low Debt', 'Good Credit History', 'Short Loan Term'], data: [0.20, 0.15, 0.10, 0.07] },
-            denied: { baseValue: 0.5, prediction: 0.28, labels: ['High Debt', 'Low Income', 'Short Credit History', 'High Loan Amount'], data: [-0.12, -0.08, -0.05, -0.07] }
+            approved: {
+                baseValue: 0.5,
+                prediction: 0.92,
+                labels: ['High Income', 'Low Debt', 'Good Credit History', 'Short Loan Term'],
+                data: [0.20, 0.15, 0.10, 0.07]
+            },
+            denied: {
+                baseValue: 0.5,
+                prediction: 0.28,
+                labels: ['High Debt', 'Low Income', 'Short Credit History', 'High Loan Amount'],
+                data: [-0.12, -0.08, -0.05, -0.07]
+            }
         };
+
         const chartData = scenarios[scenario];
         const backgroundColors = chartData.data.map(d => d > 0 ? 'rgba(59, 130, 246, 0.7)' : 'rgba(239, 68, 68, 0.7)');
         const borderColors = chartData.data.map(d => d > 0 ? 'rgba(59, 130, 246, 1)' : 'rgba(239, 68, 68, 1)');
+
+
         if (shapChartInstance) {
             shapChartInstance.data.labels = chartData.labels;
             shapChartInstance.data.datasets[0].data = chartData.data;
@@ -300,21 +458,80 @@ document.addEventListener('DOMContentLoaded', () => {
             shapChartInstance.update();
             return;
         }
+
         shapChartInstance = new Chart(ctx, {
             type: 'bar',
-            data: { labels: chartData.labels, datasets: [{ label: 'SHAP Value (impact on model output)', data: chartData.data, backgroundColor: backgroundColors, borderColor: borderColors, borderWidth: 1 }] },
+            data: {
+                labels: chartData.labels,
+                datasets: [{
+                    label: 'SHAP Value (impact on model output)',
+                    data: chartData.data,
+                    backgroundColor: backgroundColors,
+                    borderColor: borderColors,
+                    borderWidth: 1
+                }]
+            },
             options: {
-                indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-                scales: { x: { title: { display: true, text: 'Contribution to Prediction' }, stacked: true }, y: { stacked: true } },
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Contribution to Prediction' },
+                        stacked: true
+                    },
+                    y: {
+                        stacked: true
+                    }
+                },
                 plugins: {
                     legend: { display: false },
-                    title: { display: true, text: `Explaining Prediction: ${Math.round(chartData.prediction*100)}% (Base: ${chartData.baseValue*100}%)`, font: { size: 16 } },
-                    tooltip: { callbacks: { label: function(context) { let label = context.dataset.label || ''; if (label) { label += ': '; } if (context.parsed.x !== null) { label += context.parsed.x.toFixed(3); } return label; } } }
+                    title: {
+                        display: true,
+                        text: `Explaining Prediction: ${Math.round(chartData.prediction*100)}% (Base: ${chartData.baseValue*100}%)`,
+                        font: { size: 16 }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.x !== null) {
+                                    label += context.parsed.x.toFixed(3);
+                                }
+                                return label;
+                            }
+                        }
+                    }
                 }
             }
         });
     }
-    document.getElementById('shapScenario').addEventListener('change', (e) => { renderSHAPChart(e.target.value); });
+
+    document.getElementById('shapScenario').addEventListener('change', (e) => {
+        renderSHAPChart(e.target.value);
+    });
+
+    const accordions = document.querySelectorAll('.accordion-item');
+    accordions.forEach(item => {
+        const header = item.querySelector('.accordion-header');
+        const content = item.querySelector('.accordion-content');
+        const icon = header.querySelector('span');
+        header.addEventListener('click', () => {
+            const isExpanded = content.style.maxHeight && content.style.maxHeight !== '0px';
+            accordions.forEach(i => {
+                i.querySelector('.accordion-content').style.maxHeight = '0px';
+                i.querySelector('.accordion-header span').textContent = '+';
+            });
+            if (!isExpanded) {
+                content.style.maxHeight = content.scrollHeight + 'px';
+                icon.textContent = '−';
+            }
+        });
+    });
+
     renderLIMEChart();
     renderSHAPChart();
 });
