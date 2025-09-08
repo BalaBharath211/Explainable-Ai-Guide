@@ -3,265 +3,474 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Explainable AI (XAI) Deep Dive</title>
+    <title>Hybrid Fraud Detection: Interactive Roadmap</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Tech Horizon -->
+    <!-- Application Structure Plan: The application is designed as a non-linear, thematic dashboard, moving from the high-level problem to the specific solution and its implementation. The structure is: Hero -> The Challenge -> The Solution -> Interactive Architecture -> Roadmap -> Impact & Metrics. This flow guides the user from the "why" to the "what," "how," and "when," making a complex technical proposal digestible. A sticky navigation bar allows users to jump to any section, catering to different interests (e.g., a manager might focus on the Roadmap, while a technician explores the Architecture). This structure was chosen over a linear report format to enhance engagement and allow users to explore content based on their own priorities, which is more effective for web-based consumption. -->
+    <!-- Visualization & Content Choices: 
+    - The Challenge (Financial Crime Stat): Report Info -> Scale of financial crime ($5.5T). Goal -> Create impact. Viz -> Large headline text (HTML/CSS). Interaction -> None. Justification -> Immediately establishes the problem's magnitude.
+    - Core Technologies (HE, SMPC, XAI): Report Info -> Descriptions of the three key technologies. Goal -> Inform & Organize. Viz -> Three-column card layout with icons. Interaction -> Subtle hover effects. Justification -> Breaks down the core components into easily comparable and understandable blocks.
+    - System Architecture: Report Info -> Multi-layered data flow. Goal -> Explain a complex process. Viz -> Interactive flowchart built with HTML/Tailwind divs. Interaction -> On hover, JS displays detailed explanations for each stage. Justification -> Transforms a static diagram into an exploratory tool, improving comprehension.
+    - Implementation Roadmap: Report Info -> Project phases and timeline. Goal -> Visualize change over time. Viz -> Horizontal Bar Chart (Gantt-style). Interaction -> Chart.js tooltips on hover show phase details. Justification -> Provides a clear, at-a-glance project timeline. Library -> Chart.js.
+    - Performance Metrics: Report Info -> Target system performance metrics. Goal -> Compare multiple variables. Viz -> Radar Chart. Interaction -> Chart.js tooltips explain each metric. Justification -> Effectively displays multi-dimensional target goals for the system. Library -> Chart.js.
+    - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f8fafc; /* Lighter gray background */
-            color: #334155; 
+            background-color: #f8f9fa;
+            color: #343a40;
         }
         .chart-container {
             position: relative;
             width: 100%;
-            max-width: 700px;
             margin-left: auto;
             margin-right: auto;
-            height: 300px;
+            max-width: 900px;
+            height: 400px;
+            max-height: 50vh;
         }
-        @media (min-width: 768px) {
-            .chart-container {
-                height: 400px;
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #0d6efd;
+            border-bottom-color: #0d6efd;
+        }
+        .architecture-step {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .architecture-step:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border-color: #0d6efd;
+        }
+        .arrow {
+            color: #6c757d;
+            font-size: 2rem;
+            line-height: 1;
+        }
+        @media (max-width: 768px) {
+            .arrow {
+                transform: rotate(90deg);
             }
-        }
-        .nav-link.active {
-            color: #0d9488;
-            background-color: #f0fdfa;
-        }
-        .accordion-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.5s cubic-bezier(0, 1, 0, 1);
-        }
-        .accordion-icon {
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        /* Custom gradient for a smoother look */
-        .text-gradient {
-             background: linear-gradient(to right, #14b8a6, #06b6d4);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
         }
     </style>
 </head>
-<body class="antialiased">
+<body class="bg-gray-50 text-gray-800">
 
-    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 border-b border-slate-200">
-        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <div class="flex-shrink-0">
-                    <span class="font-bold text-xl text-gradient">XAI Explained</span>
+    <header class="bg-white/80 backdrop-blur-lg shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-3">
+            <div class="flex items-center justify-between">
+                <div class="text-xl font-bold text-gray-900">Fraud Detection Reimagined</div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#challenge" class="nav-link text-gray-600 font-medium pb-1">The Challenge</a>
+                    <a href="#solution" class="nav-link text-gray-600 font-medium pb-1">The Solution</a>
+                    <a href="#architecture" class="nav-link text-gray-600 font-medium pb-1">Architecture</a>
+                    <a href="#roadmap" class="nav-link text-gray-600 font-medium pb-1">Roadmap</a>
+                    <a href="#impact" class="nav-link text-gray-600 font-medium pb-1">Impact</a>
                 </div>
-                <div class="hidden md:block">
-                    <div class="ml-10 flex items-baseline space-x-2">
-                        <a href="#beginner" class="nav-link text-slate-600 hover:bg-slate-100 hover:text-slate-800 px-3 py-2 rounded-md text-sm font-medium transition-colors">Beginner</a>
-                        <a href="#intermediate" class="nav-link text-slate-600 hover:bg-slate-100 hover:text-slate-800 px-3 py-2 rounded-md text-sm font-medium transition-colors">Intermediate</a>
-                        <a href="#comparison" class="nav-link text-slate-600 hover:bg-slate-100 hover:text-slate-800 px-3 py-2 rounded-md text-sm font-medium transition-colors">Comparison</a>
-                        <a href="#advanced" class="nav-link text-slate-600 hover:bg-slate-100 hover:text-slate-800 px-3 py-2 rounded-md text-sm font-medium transition-colors">Advanced</a>
-                        <a href="#practice" class="nav-link text-slate-600 hover:bg-slate-100 hover:text-slate-800 px-3 py-2 rounded-md text-sm font-medium transition-colors">Practice</a>
-                    </div>
-                </div>
-                <div class="-mr-2 flex md:hidden">
-                    <button id="mobile-menu-button" type="button" class="bg-white inline-flex items-center justify-center p-2 rounded-md text-slate-500 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500" aria-controls="mobile-menu" aria-expanded="false">
-                        <span class="sr-only">Open main menu</span>
-                        <svg id="hamburger-icon" class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                        <svg id="close-icon" class="hidden h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
+                <div class="md:hidden">
+                    <button id="menu-btn" class="text-gray-600 focus:outline-none">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
                     </button>
                 </div>
             </div>
-        </nav>
-        <div class="md:hidden hidden" id="mobile-menu">
-            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                <a href="#beginner" class="mobile-nav-link text-slate-600 hover:bg-slate-100 block px-3 py-2 rounded-md text-base font-medium">Beginner</a>
-                <a href="#intermediate" class="mobile-nav-link text-slate-600 hover:bg-slate-100 block px-3 py-2 rounded-md text-base font-medium">Intermediate</a>
-                <a href="#comparison" class="mobile-nav-link text-slate-600 hover:bg-slate-100 block px-3 py-2 rounded-md text-base font-medium">Comparison</a>
-                <a href="#advanced" class="mobile-nav-link text-slate-600 hover:bg-slate-100 block px-3 py-2 rounded-md text-base font-medium">Advanced</a>
-                <a href="#practice" class="mobile-nav-link text-slate-600 hover:bg-slate-100 block px-3 py-2 rounded-md text-base font-medium">Practice</a>
+            <div id="mobile-menu" class="hidden md:hidden mt-4 space-y-2">
+                 <a href="#challenge" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100 rounded">The Challenge</a>
+                 <a href="#solution" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100 rounded">The Solution</a>
+                 <a href="#architecture" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100 rounded">Architecture</a>
+                 <a href="#roadmap" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100 rounded">Roadmap</a>
+                 <a href="#impact" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100 rounded">Impact</a>
             </div>
-        </div>
+        </nav>
     </header>
 
-    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-
-        <section id="intro" class="text-center mb-20 sm:mb-24">
-            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-800">
-                A Researcher's Guide to <span class="text-gradient">Explainable AI</span>
-            </h1>
-            <p class="mt-6 text-lg text-slate-600 max-w-3xl mx-auto">From the 'black box' problem to the frontiers of research. An interactive journey into the heart of trustworthy AI.</p>
-        </section>
-        
-        <div class="space-y-16 sm:space-y-20">
-
-            <section id="beginner" class="scroll-mt-20">
-                <div class="text-center mb-10">
-                    <h2 class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Level 1: The 'Black Box' Conundrum</h2>
-                    <p class="mt-3 text-lg text-slate-600">Understanding the core problem that XAI aims to solve.</p>
-                </div>
-                <h3>What is the 'Black Box' Problem?</h3>
-                <p>In AI, a "black box" refers to a model whose internal workings are not visible or understandable to humans. We can see the inputs and the outputs, but the process in between is a complex web of mathematical operations. This is especially true for deep learning models.</p>
-                <div class="my-10 bg-white p-6 sm:p-8 rounded-xl shadow-lg flex flex-col md:flex-row items-center justify-center space-y-6 md:space-y-0 md:space-x-8 text-center border border-slate-200">
-                    <div class="bg-slate-100 p-4 rounded-lg"><span class="text-lg font-semibold text-slate-700">Patient Data</span></div>
-                    <div class="text-4xl text-teal-500 font-mono transform rotate-90 md:rotate-0">&rarr;</div>
-                    <div class="bg-slate-800 text-white p-8 rounded-lg shadow-xl relative">
-                        <span class="text-5xl font-bold">?</span>
-                        <span class="absolute -top-3 -left-3 bg-teal-500 text-white text-xs font-bold px-2 py-1 rounded-full">AI Model</span>
-                    </div>
-                    <div class="text-4xl text-teal-500 font-mono transform rotate-90 md:rotate-0">&rarr;</div>
-                    <div class="bg-slate-100 p-4 rounded-lg"><span class="text-lg font-semibold text-slate-700">"High Risk"</span></div>
-                </div>
-
-                <h3>Why is Explainability so Important?</h3>
-                <p>In high-stakes domains, a simple prediction is not enough. We need to trust that the prediction was made for the right reasons.</p>
-                <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
-                        <h4 class="font-bold text-lg text-teal-700">Healthcare</h4>
-                        <p class="mt-2 text-slate-600">If an AI model predicts a high risk of cancer, a doctor needs to know *why*. The explanation is critical for diagnosis and building trust.</p>
-                    </div>
-                    <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
-                        <h4 class="font-bold text-lg text-slate-700">Finance</h4>
-                        <p class="mt-2 text-slate-600">When a bank's AI denies a loan, regulations may require a reason. This ensures the model isn't discriminating and provides transparency.</p>
-                    </div>
-                </div>
-            </section>
-
-            <hr class="border-slate-200"/>
-
-            <section id="intermediate" class="scroll-mt-20">
-                <div class="text-center mb-10">
-                    <h2 class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Level 2: Peeking Inside with LIME & SHAP</h2>
-                    <p class="mt-3 text-lg text-slate-600">Exploring two powerful, model-agnostic tools for explaining predictions.</p>
-                </div>
-                <div class="space-y-12">
-                    <div>
-                        <h3>LIME: Local Explanations</h3>
-                        <p><strong>LIME</strong> (Local Interpretable Model-agnostic Explanations) focuses on explaining a *single prediction* by approximating the model's behavior around that specific instance.</p>
-                        <div class="mt-6 bg-white p-4 sm:p-6 rounded-xl border border-slate-200 shadow-lg">
-                           <h4 class="text-xl font-semibold text-center mb-2 text-slate-800">Interactive LIME Simulation</h4>
-                            <p class="text-center text-sm text-slate-500 mb-4">Click a data point to see how LIME creates a simple, local explanation (the orange line).</p>
-                            <div class="chart-container"><canvas id="limeChart"></canvas></div>
-                            <p id="limeExplanation" class="text-center mt-4 font-medium text-teal-600 h-6"></p>
-                        </div>
-                    </div>
-                    <div>
-                        <h3>SHAP: Fairly Distributing the Prediction</h3>
-                        <p><strong>SHAP</strong> (SHapley Additive exPlanations) uses game theory to fairly attribute the impact of each feature on the final prediction.</p>
-                        <div class="mt-6 bg-white p-4 sm:p-6 rounded-xl border border-slate-200 shadow-lg">
-                           <h4 class="text-xl font-semibold text-center mb-4 text-slate-800">Interactive SHAP Explanation</h4>
-                           <div class="flex flex-col items-center">
-                                <label for="shapScenario" class="text-sm font-medium mb-2 text-slate-600">Select a loan application scenario:</label>
-                                <select id="shapScenario" class="w-full max-w-xs p-2 border border-slate-300 rounded-md shadow-sm bg-white focus:ring-2 focus:ring-teal-500 focus:border-teal-500">
-                                    <option value="approved">Application Approved (Prediction: 92%)</option>
-                                    <option value="denied">Application Denied (Prediction: 28%)</option>
-                                </select>
-                            </div>
-                            <p class="text-center text-sm text-slate-500 my-4">Blue bars push the prediction higher (Approve), red bars push it lower (Deny).</p>
-                            <div class="chart-container"><canvas id="shapChart"></canvas></div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            
+    <main>
+        <section id="hero" class="py-20 md:py-32 bg-white">
+            <div class="container mx-auto px-6 text-center">
+                <h1 class="text-4xl md:text-6xl font-bold text-gray-900 leading-tight">A Hybrid Architecture for Privacy-Preserving Financial Fraud Detection</h1>
+                <p class="mt-6 text-lg text-gray-600 max-w-3xl mx-auto">An expert-level roadmap for a novel system that integrates Homomorphic Encryption, Secure Multi-Party Computation, and Explainable AI to resolve the conflict between data privacy and operational transparency in finance.</p>
             </div>
-    </main>
+        </section>
 
-    <footer class="bg-slate-100 border-t border-slate-200 mt-20 sm:mt-24">
-        <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center text-slate-500">
-            <p>&copy; 2025 XAI Research Initiative. An interactive guide to understanding modern AI.</p>
+        <section id="challenge" class="py-16 md:py-24">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900">The Modern Financial Crime Challenge</h2>
+                    <p class="mt-4 text-gray-600 max-w-2xl mx-auto">The sophistication of financial crime, amplified by AI, demands a shift from siloed, reactive systems to a collaborative, proactive, and privacy-preserving framework. This section outlines the core problem our hybrid architecture is designed to solve.</p>
+                </div>
+                <div class="grid md:grid-cols-2 gap-8 items-center">
+                    <div class="bg-white p-8 rounded-lg shadow-md border border-gray-200">
+                        <h3 class="text-2xl font-semibold text-center text-red-600">The Escalating Threat</h3>
+                        <p class="text-6xl font-bold text-center mt-4 text-red-500">$5.5 Trillion</p>
+                        <p class="text-center text-gray-500 mt-2">Projected scale of global financial crime by 2025.</p>
+                        <p class="mt-6 text-gray-600">Criminals are increasingly leveraging advanced technology and exploiting data silos between institutions. Traditional fraud detection models, which require access to sensitive plaintext data, create an unacceptable trade-off between security and privacy.</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-lg shadow-md border border-gray-200">
+                        <h3 class="text-2xl font-semibold text-center text-blue-600">The Fundamental Tension</h3>
+                        <div class="flex justify-around items-center mt-8">
+                            <div class="text-center">
+                                <div class="text-5xl mb-2">🛡️</div>
+                                <h4 class="font-bold text-lg">Data Privacy</h4>
+                                <p class="text-sm text-gray-500">Regulatory compliance (GDPR, etc.) and customer trust demand data remain encrypted and secure.</p>
+                            </div>
+                            <div class="text-4xl font-light text-gray-400">vs</div>
+                             <div class="text-center">
+                                <div class="text-5xl mb-2">🔍</div>
+                                <h4 class="font-bold text-lg">Data Insight</h4>
+                                <p class="text-sm text-gray-500">Effective fraud detection requires deep analysis and collaboration on transaction data.</p>
+                            </div>
+                        </div>
+                         <p class="mt-8 text-gray-600">Our solution directly addresses this conflict, enabling powerful analytics without compromising the confidentiality of the underlying data.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="solution" class="py-16 md:py-24 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900">A Multi-Layered, Privacy-First Design</h2>
+                     <p class="mt-4 text-gray-600 max-w-3xl mx-auto">The proposed architecture integrates three advanced technologies, each forming a distinct layer that contributes to a secure, collaborative, and transparent fraud detection ecosystem. Explore how each component functions below.</p>
+                </div>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="bg-gray-50 p-8 rounded-lg border border-gray-200 text-center hover:shadow-xl transition-shadow">
+                        <div class="text-5xl mb-4">🔐</div>
+                        <h3 class="text-2xl font-semibold mb-2">Homomorphic Encryption (HE)</h3>
+                        <p class="text-gray-500 mb-4 font-medium">The Foundational Layer</p>
+                        <p class="text-gray-600">HE allows financial institutions to perform real-time fraud detection on fully encrypted transaction data, on-premise. Plaintext data is never exposed during analysis, ensuring compliance with strict data localization and privacy regulations.</p>
+                    </div>
+                    <div class="bg-gray-50 p-8 rounded-lg border border-gray-200 text-center hover:shadow-xl transition-shadow">
+                        <div class="text-5xl mb-4">🤝</div>
+                        <h3 class="text-2xl font-semibold mb-2">Secure Multi-Party Comp. (SMPC)</h3>
+                        <p class="text-gray-500 mb-4 font-medium">The Collaborative Layer</p>
+                        <p class="text-gray-600">SMPC enables multiple banks to jointly analyze anonymized, derived features from their encrypted data. This collaborative approach uncovers complex, cross-institutional fraud patterns that are invisible to any single organization.</p>
+                    </div>
+                    <div class="bg-gray-50 p-8 rounded-lg border border-gray-200 text-center hover:shadow-xl transition-shadow">
+                        <div class="text-5xl mb-4">💡</div>
+                        <h3 class="text-2xl font-semibold mb-2">Explainable AI (XAI)</h3>
+                        <p class="text-gray-500 mb-4 font-medium">The Transparency Layer</p>
+                        <p class="text-gray-600">XAI provides clear, human-understandable explanations for the AI model's fraud alerts. This builds trust with regulators, empowers fraud analysts to make faster, more accurate decisions, and ensures model fairness and accountability.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="architecture" class="py-16 md:py-24">
+            <div class="container mx-auto px-6">
+                 <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Interactive System Architecture</h2>
+                    <p class="mt-4 text-gray-600 max-w-3xl mx-auto">This diagram illustrates the flow of data through our hybrid system. Hover over any step to learn more about its specific function and the technologies involved. This interactive model helps clarify how data remains secure while still providing valuable insights for fraud detection.</p>
+                </div>
+                <div class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4 mb-8">
+                    <div id="step-1" class="architecture-step bg-white p-4 rounded-lg shadow-md border-2 w-full md:w-48 text-center border-gray-200">
+                        <p class="font-semibold">1. Transaction Data</p>
+                    </div>
+                    <div class="arrow">&rarr;</div>
+                    <div id="step-2" class="architecture-step bg-white p-4 rounded-lg shadow-md border-2 w-full md:w-48 text-center border-gray-200">
+                        <p class="font-semibold">2. HE Encryption</p>
+                    </div>
+                     <div class="arrow">&rarr;</div>
+                    <div id="step-3" class="architecture-step bg-white p-4 rounded-lg shadow-md border-2 w-full md:w-48 text-center border-gray-200">
+                        <p class="font-semibold">3. On-Premise Analysis</p>
+                    </div>
+                     <div class="arrow">&rarr;</div>
+                    <div id="step-4" class="architecture-step bg-white p-4 rounded-lg shadow-md border-2 w-full md:w-48 text-center border-gray-200">
+                        <p class="font-semibold">4. SMPC Joint Analysis</p>
+                    </div>
+                     <div class="arrow">&rarr;</div>
+                    <div id="step-5" class="architecture-step bg-white p-4 rounded-lg shadow-md border-2 w-full md:w-48 text-center border-gray-200">
+                        <p class="font-semibold">5. Fraud Alert & XAI</p>
+                    </div>
+                </div>
+                <div id="architecture-details" class="mt-8 bg-white p-8 rounded-lg shadow-inner border border-gray-200 min-h-[150px]">
+                    <h3 id="details-title" class="text-xl font-bold text-blue-600">Hover over a step</h3>
+                    <p id="details-text" class="mt-2 text-gray-600">Select a component from the workflow above to see a detailed description of its role in the privacy-preserving fraud detection process.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="roadmap" class="py-16 md:py-24 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Implementation Roadmap</h2>
+                    <p class="mt-4 text-gray-600 max-w-3xl mx-auto">This timeline outlines the phased approach for developing and deploying the hybrid fraud detection system. The roadmap is designed to manage complexity, mitigate risks, and deliver value incrementally over a 36+ month period. Hover over the bars for more phase details.</p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="roadmapChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="impact" class="py-16 md:py-24">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Projected Impact and Key Metrics</h2>
+                    <p class="mt-4 text-gray-600 max-w-3xl mx-auto">The successful implementation of this system will yield significant benefits in security, efficiency, and collaboration. This section highlights the target performance metrics and the primary challenges that must be addressed for a successful deployment.</p>
+                </div>
+                <div class="grid md:grid-cols-5 gap-8">
+                    <div class="md:col-span-2 bg-white p-8 rounded-lg shadow-md border border-gray-200">
+                        <h3 class="text-2xl font-semibold mb-4">Key Benefits</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-start"><span class="text-green-500 mr-2">✔</span> <strong>Enhanced Privacy:</strong> Eliminates the risk of data breaches during analysis.</li>
+                            <li class="flex items-start"><span class="text-green-500 mr-2">✔</span> <strong>Improved Detection:</strong> Uncovers sophisticated, cross-institutional fraud rings.</li>
+                             <li class="flex items-start"><span class="text-green-500 mr-2">✔</span> <strong>Regulatory Compliance:</strong> Adheres to strict data localization and privacy laws.</li>
+                            <li class="flex items-start"><span class="text-green-500 mr-2">✔</span> <strong>Increased Transparency:</strong> Builds trust and accountability through explainable AI.</li>
+                             <li class="flex items-start"><span class="text-green-500 mr-2">✔</span> <strong>Collaborative Power:</strong> Fosters a data-driven security ecosystem among institutions.</li>
+                        </ul>
+                         <h3 class="text-2xl font-semibold mt-8 mb-4">Major Challenges</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-start"><span class="text-yellow-500 mr-2">⚠</span> <strong>Performance Overhead:</strong> HE and SMPC are computationally intensive and require optimization.</li>
+                            <li class="flex items-start"><span class="text-yellow-500 mr-2">⚠</span> <strong>Scalability:</strong> Ensuring the system can handle real-world transaction volumes.</li>
+                            <li class="flex items-start"><span class="text-yellow-500 mr-2">⚠</span> <strong>Interoperability:</strong> Standardizing data models and protocols across institutions.</li>
+                        </ul>
+                    </div>
+                    <div class="md:col-span-3 bg-white p-6 rounded-lg shadow-md border border-gray-200">
+                         <h3 class="text-2xl font-semibold mb-4 text-center">Target Performance Metrics</h3>
+                         <div class="chart-container" style="height: 450px; max-height: 60vh;">
+                            <canvas id="metricsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; 2025 Privacy-Preserving Technologies Initiative. All Rights Reserved.</p>
+            <p class="text-sm text-gray-400 mt-2">An interactive summary based on the "Hybrid Architecture for Privacy-Preserving and Transparent Financial Fraud Detection" report.</p>
         </div>
     </footer>
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
 
-    // --- MOBILE MENU SCRIPT ---
-    const menuButton = document.getElementById('mobile-menu-button');
-    const mobileMenu = document.getElementById('mobile-menu');
-    const hamburgerIcon = document.getElementById('hamburger-icon');
-    const closeIcon = document.getElementById('close-icon');
-    const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            const menuBtn = document.getElementById('menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
 
-    menuButton.addEventListener('click', () => {
-        const isExpanded = menuButton.getAttribute('aria-expanded') === 'true';
-        menuButton.setAttribute('aria-expanded', !isExpanded);
-        mobileMenu.classList.toggle('hidden');
-        hamburgerIcon.classList.toggle('hidden');
-        closeIcon.classList.toggle('hidden');
-    });
+            menuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
 
-    mobileNavLinks.forEach(link => {
-        link.addEventListener('click', () => {
-            menuButton.setAttribute('aria-expanded', 'false');
-            mobileMenu.classList.add('hidden');
-            hamburgerIcon.classList.remove('hidden');
-            closeIcon.classList.add('hidden');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('section');
+
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.4
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => {
+                            link.classList.remove('active');
+                            if (link.getAttribute('href').substring(1) === entry.target.id) {
+                                link.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+
+
+            const architectureSteps = {
+                'step-1': {
+                    title: 'Step 1: Raw Transaction Data',
+                    text: 'The process begins with a stream of financial transaction data from a participating institution. This data includes sensitive information such as account numbers, transaction amounts, and timestamps.'
+                },
+                'step-2': {
+                    title: 'Step 2: Homomorphic Encryption (HE)',
+                    text: 'Before any analysis, the raw transaction data is encrypted on-premise using an HE scheme. This converts the data into ciphertext, a format that can be computationally analyzed without revealing the underlying information.'
+                },
+                'step-3': {
+                    title: 'Step 3: On-Premise Analysis & Feature Extraction',
+                    text: 'The institution performs initial fraud detection analysis on its own encrypted data. Machine learning models, adapted for HE, identify suspicious patterns. Key non-sensitive features (e.g., transaction type, risk score) are extracted from the ciphertext.'
+                },
+                'step-4': {
+                    title: 'Step 4: SMPC for Joint Cross-Institutional Analysis',
+                    text: 'The encrypted, derived features from multiple institutions are sent to a secure computational environment. Using SMPC protocols, the institutions collaboratively run advanced models to detect large-scale fraud patterns that cross institutional boundaries, without any party ever seeing another\'s data.'
+                },
+                'step-5': {
+                    title: 'Step 5: Secure Alerting & Explainable AI (XAI)',
+                    text: 'If the joint analysis flags a high-risk pattern, a secure alert is generated and sent back to the relevant institution(s). The XAI layer provides a clear, understandable explanation for the alert, enabling analysts to investigate efficiently and build trust in the automated system.'
+                }
+            };
+
+            const detailsTitle = document.getElementById('details-title');
+            const detailsText = document.getElementById('details-text');
+
+            Object.keys(architectureSteps).forEach(stepId => {
+                const stepElement = document.getElementById(stepId);
+                stepElement.addEventListener('mouseover', () => {
+                    const stepInfo = architectureSteps[stepId];
+                    detailsTitle.textContent = stepInfo.title;
+                    detailsText.textContent = stepInfo.text;
+                    
+                    document.querySelectorAll('.architecture-step').forEach(el => el.classList.remove('border-blue-500', 'scale-105'));
+                    stepElement.classList.add('border-blue-500', 'scale-105');
+                });
+            });
+
+
+            const roadmapCtx = document.getElementById('roadmapChart').getContext('2d');
+            const roadmapChart = new Chart(roadmapCtx, {
+                type: 'bar',
+                data: {
+                    labels: [
+                        'Phase 1: Feasibility & HE Model Dev', 
+                        'Phase 2: SMPC & XAI Integration', 
+                        'Phase 3: Pilot Program & Scalability',
+                        'Phase 4: Full-Scale Deployment'
+                    ],
+                    datasets: [{
+                        label: 'Project Duration (Months)',
+                        data: [[0, 6], [6, 18], [18, 36], [36, 48]],
+                        backgroundColor: [
+                            'rgba(54, 162, 235, 0.6)',
+                            'rgba(255, 159, 64, 0.6)',
+                            'rgba(75, 192, 192, 0.6)',
+                            'rgba(153, 102, 255, 0.6)'
+                        ],
+                        borderColor: [
+                           'rgba(54, 162, 235, 1)',
+                           'rgba(255, 159, 64, 1)',
+                           'rgba(75, 192, 192, 1)',
+                           'rgba(153, 102, 255, 1)'
+                        ],
+                        borderWidth: 1,
+                        barPercentage: 0.5,
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            min: 0,
+                            max: 50,
+                            title: {
+                                display: true,
+                                text: 'Timeline in Months'
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                autoSkip: false,
+                                callback: function(value, index, values) {
+                                    const label = this.getLabelForValue(value);
+                                    if (label.length > 25) {
+                                        return label.match(/.{1,25}/g);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const val = context.raw;
+                                    const phaseDetails = {
+                                        0: 'Goals: R&D, Tech Stack Selection, PoC for HE Model.',
+                                        1: 'Goals: Integrate SMPC for 2 parties, Develop XAI layer, Prototype.',
+                                        2: 'Goals: Onboard 3-5 institutions, Performance tuning, End-to-end testing.',
+                                        3: 'Goals: Gradual rollout, Continuous monitoring and model improvement.'
+                                    };
+                                    return `Months ${val[0]} - ${val[1]}. ${phaseDetails[context.dataIndex] || ''}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+
+            const metricsCtx = document.getElementById('metricsChart').getContext('2d');
+            const metricsChart = new Chart(metricsCtx, {
+                type: 'radar',
+                data: {
+                    labels: [
+                        'Accuracy', 
+                        'F1 Score',
+                        ['Detection', 'Latency (ms)'], 
+                        ['Model Training', 'Time (hrs)'], 
+                        'Throughput (TPS)'
+                    ],
+                    datasets: [{
+                        label: 'Target Performance',
+                        data: [98, 96, 50, 24, 1000],
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgb(54, 162, 235)',
+                        pointBackgroundColor: 'rgb(54, 162, 235)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgb(54, 162, 235)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: {
+                                display: true
+                            },
+                            suggestedMin: 0,
+                            pointLabels: {
+                                font: {
+                                    size: 13
+                                }
+                            },
+                            ticks: {
+                                backdropColor: 'rgba(255, 255, 255, 0.75)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                             callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    label += context.formattedValue;
+                                    const metricDetails = {
+                                        0: '% (Higher is better)',
+                                        1: '% (Higher is better, balances precision/recall)',
+                                        2: 'ms (Lower is better)',
+                                        3: 'hrs (Lower is better)',
+                                        4: 'TPS (Higher is better)'
+                                    };
+                                    return `${label} - ${metricDetails[context.dataIndex]}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
         });
-    });
-
-    // --- SCROLLSPY & OTHER SCRIPTS (Unchanged) ---
-    // [The rest of the JS code for charts, accordions, and scroll-spying is the same as the previous version]
-    const sections = document.querySelectorAll('section[id]');
-    const navLinks = document.querySelectorAll('.nav-link');
-    const observerOptions = { root: null, rootMargin: '0px', threshold: 0.3 };
-    const observer = new IntersectionObserver((entries) => {
-        let activeId = '';
-        entries.forEach(entry => {
-            if (entry.isIntersecting && entry.intersectionRatio > 0.3) {
-                activeId = entry.target.getAttribute('id');
-            }
-        });
-        navLinks.forEach(link => {
-            link.classList.toggle('active', link.getAttribute('href') === `#${activeId}`);
-        });
-    }, observerOptions);
-    sections.forEach(section => { observer.observe(section); });
-
-    let limeChartInstance, shapChartInstance;
-    function renderLIMEChart() {
-        // Unchanged LIME chart logic...
-        const ctx = document.getElementById('limeChart').getContext('2d');
-        const dataPoints = [];
-        for (let i = 0; i < 50; i++) {
-            const x = Math.random() * 10;
-            const y = Math.sin(x) * 2 + Math.random() * 2 - 1 + 5;
-            const boundary = Math.sin(x) * 2 + 5;
-            dataPoints.push({ x, y, label: y > boundary ? 1 : 0 });
-        }
-        const decisionBoundary = Array.from({ length: 100 }, (_, i) => { const x = i * 0.1; return { x, y: Math.sin(x) * 2 + 5 }; });
-        limeChartInstance = new Chart(ctx, { type: 'scatter', data: { datasets: [{ label: 'Patient (High Risk)', data: dataPoints.filter(p => p.label === 1), backgroundColor: 'rgba(239, 68, 68, 0.7)', pointRadius: 6, }, { label: 'Patient (Low Risk)', data: dataPoints.filter(p => p.label === 0), backgroundColor: 'rgba(34, 197, 94, 0.7)', pointRadius: 6, }, { label: 'True Decision Boundary', data: decisionBoundary, borderColor: 'rgba(59, 130, 246, 1)', borderWidth: 3, type: 'line', showLine: true, pointRadius: 0, fill: false, }, { label: 'LIME Explanation', data: [], borderColor: 'rgba(217, 119, 6, 1)', borderWidth: 2, borderDash: [5, 5], type: 'line', showLine: true, pointRadius: 0, fill: false, }] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { title: { display: true, text: 'Feature 1 (e.g., Age)' } }, y: { title: { display: true, text: 'Feature 2 (e.g., Blood Pressure)' } } }, onClick: (event) => { const activePoints = limeChartInstance.getElementsAtEventForMode(event, 'nearest', { intersect: true }, true); if (activePoints.length > 0) { const point = activePoints[0]; const dataset = limeChartInstance.data.datasets[point.datasetIndex]; const data = dataset.data[point.index]; updateLIMEExplanation(data.x); } } } });
-    }
-    function updateLIMEExplanation(x_center) {
-        // Unchanged LIME update logic...
-        const slope = Math.cos(x_center) * 2;
-        const y_center = Math.sin(x_center) * 2 + 5;
-        const x1 = x_center - 1.5; const y1 = y_center - 1.5 * slope; const x2 = x_center + 1.5; const y2 = y_center + 1.5 * slope;
-        limeChartInstance.data.datasets[3].data = [{x: x1, y: y1}, {x: x2, y: y2}];
-        limeChartInstance.update();
-        document.getElementById('limeExplanation').textContent = `Locally, the model behaves like this simple line.`;
-    }
-    function renderSHAPChart(scenario = 'approved') {
-        // Unchanged SHAP chart logic...
-        const ctx = document.getElementById('shapChart').getContext('2d');
-        const scenarios = { approved: { baseValue: 0.5, prediction: 0.92, labels: ['High Income', 'Low Debt', 'Good Credit History', 'Short Loan Term'], data: [0.20, 0.15, 0.10, 0.07] }, denied: { baseValue: 0.5, prediction: 0.28, labels: ['High Debt', 'Low Income', 'Short Credit History', 'High Loan Amount'], data: [-0.12, -0.08, -0.05, -0.07] } };
-        const chartData = scenarios[scenario];
-        const backgroundColors = chartData.data.map(d => d > 0 ? 'rgba(59, 130, 246, 0.7)' : 'rgba(239, 68, 68, 0.7)');
-        const borderColors = chartData.data.map(d => d > 0 ? 'rgba(59, 130, 246, 1)' : 'rgba(239, 68, 68, 1)');
-        if (shapChartInstance) { shapChartInstance.data.labels = chartData.labels; shapChartInstance.data.datasets[0].data = chartData.data; shapChartInstance.data.datasets[0].backgroundColor = backgroundColors; shapChartInstance.data.datasets[0].borderColor = borderColors; shapChartInstance.options.plugins.title.text = `Explaining Prediction: ${Math.round(chartData.prediction*100)}% (Base: ${chartData.baseValue*100}%)`; shapChartInstance.update(); return; }
-        shapChartInstance = new Chart(ctx, { type: 'bar', data: { labels: chartData.labels, datasets: [{ label: 'SHAP Value', data: chartData.data, backgroundColor: backgroundColors, borderColor: borderColors, borderWidth: 1 }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, scales: { x: { title: { display: true, text: 'Contribution to Prediction' } } }, plugins: { legend: { display: false }, title: { display: true, text: `Explaining Prediction: ${Math.round(chartData.prediction*100)}% (Base: ${chartData.baseValue*100}%)`, font: { size: 16 } } } } });
-    }
-    document.getElementById('shapScenario').addEventListener('change', (e) => { renderSHAPChart(e.target.value); });
-    renderLIMEChart();
-    renderSHAPChart();
-});
-</script>
-
+    </script>
 </body>
 </html>
